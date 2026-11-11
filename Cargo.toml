@@ -1,0 +1,33 @@
+[package]
+name = "zapitra"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "ZAPITRA: an independent Rust state-space model for the BLAKE3-Servil Pipeline API design"
+license = "MIT"
+readme = "README.md"
+publish = false
+
+[lib]
+name = "zapitra"
+path = "src/lib.rs"
+
+[[bin]]
+name = "zapitra"
+path = "src/main.rs"
+
+[dependencies]
+
+[profile.release]
+debug = 0
+lto = false
+codegen-units = 8
+
+[profile.test]
+opt-level = 1
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+mem_forget = "deny"

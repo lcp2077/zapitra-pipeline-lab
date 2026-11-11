@@ -1,0 +1,6 @@
+/target/
+/reports/*.json
+/reports/*.jsonl
+/reports/*.log
+/reports/*.txt
+/reports/*.sha256

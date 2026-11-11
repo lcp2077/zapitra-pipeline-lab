@@ -1,0 +1,1 @@
+I answered the Rust review call with ZAPITRA 0.1: an independent Rust contract model, bounded state-space explorer, and compile-only consumer probe for the new BLAKE3 Pipeline API. It is deliberately clear about what the current todo!() skeleton can—and cannot—validate. https://github.com/lcp2077/zapitra-pipeline-lab

@@ -1,0 +1,20 @@
+name: Upstream Pipeline API compile probe
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile-probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Compile against the pinned upstream design skeleton
+        run: ./scripts/check-upstream-client.sh

@@ -1,0 +1,52 @@
+name: ZAPITRA CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Run Clippy
+        run: cargo clippy --locked --all-targets -j 1 -- -D warnings
+      - name: Run unit tests
+        run: cargo test --locked -j 1
+      - name: Build command-line tool
+        run: cargo build --locked -j 1
+      - name: Run fixed checks and bounded exploration
+        run: ./target/debug/zapitra selfcheck --depth 8 --states 12000 --report reports/ci-selfcheck.json
+      - name: Run extended state exploration
+        run: ./target/debug/zapitra explore --depth 9 --states 20000 --report reports/ci-explore.json
+      - name: Validate JSON evidence
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          selfcheck = json.loads(Path("reports/ci-selfcheck.json").read_text())
+          explore = json.loads(Path("reports/ci-explore.json").read_text())
+          assert selfcheck["fixed_checks_passed"] == selfcheck["fixed_checks_total"]
+          assert selfcheck["fixed_checks_total"] == 12
+          assert not selfcheck["exploration"]["state_limit_hit"]
+          assert not explore["state_limit_hit"]
+          assert explore["invariant_checks"] >= explore["states_explored"]
+          print("CI evidence: PASS")
+          PY
+      - name: Preserve evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zapitra-ci-evidence
+          path: reports/
+          if-no-files-found: ignore
